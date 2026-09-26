@@ -3,34 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma WebApp</title>
-    <!-- SDK Telegram WebApp -->
+    <title>Menu</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        body { font-family: sans-serif; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
-    <h1>Bienvenue sur ma WebApp !</h1>
-    <p id="user-info">Chargement...</p>
-    <button id="send-btn">Envoyer une donnée au bot</button>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Agrandit la WebApp dans Telegram
-
-        // Affiche le prénom de l'utilisateur
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-info').innerText = 
-                `Bonjour ${tg.initDataUnsafe.user.first_name} !`;
-        }
-
-        // Action lors du clic sur le bouton
-        document.getElementById('send-btn').addEventListener('click', () => {
-            // Renvoie une donnée au bot et ferme la WebApp
-            tg.sendData(JSON.stringify({ action: "button_clicked", value: 42 }));
-        });
-    </script>
+    <h2>MIDI/MIDI</h2>
 </body>
 </html>
