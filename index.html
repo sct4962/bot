@@ -562,24 +562,58 @@
             document.getElementById('cart-total-price').textContent = `${total.toFixed(2)} €`;
         }
 
-        function submitOrder() {
-            if (cart.length === 0) {
-                tg.showAlert("panier vide");
-                return;
-            }
+        // --- CONFIGURATION ---
+const BOT_TOKEN = "8544110657:AAHmxYQ36ukyCwFp8G2jhuhhrtLAqmkH-uk";
 
-            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+// ⚠️ Remplace par l'ID de ton canal privé de commandes (commence par -100...)
+const ORDERS_CHANNEL_ID = -1003974310473; 
 
-            let text = "*commande*\n\n";
-            cart.forEach(item => {
-                text += `• ${item.title} (x${item.quantity}) - ${(item.price * item.quantity).toFixed(2)}€\n`;
-            });
-            text += `\ntotal: ${totalAmount.toFixed(2)} €`;
+async function submitOrder() {
+    if (cart.length === 0) {
+        tg.showAlert("Votre panier est vide !");
+        return;
+    }
 
-            const url = `https://t.me/${BOT_USERNAME}?text=${encodeURIComponent(text)}`;
-            tg.openTelegramLink(url);
-            tg.close();
-        }
+    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Identité de l'acheteur (lien cliquable vers son profil)
+    let buyerTag = telegramUser.username 
+        ? `@${telegramUser.username}` 
+        : `[${telegramUser.first_name}](tg://user?id=${telegramUser.id})`;
+    
+    let message = `🚨 *NOUVELLE COMMANDE*\n\n`;
+    message += `👤 *Acheteur :* ${buyerTag}\n`;
+    message += `🆔 *ID Telegram :* \`${telegramUser.id}\`\n\n`;
+    message += `📦 *Articles :*\n`;
+    
+    cart.forEach(item => {
+        message += `• ${item.title} x${item.quantity} — ${(item.price * item.quantity).toFixed(2)} €\n`;
+    });
+    
+    message += `\n💰 *Total :* ${totalAmount.toFixed(2)} €`;
+
+    try {
+        // Envoi direct du message dans le CANAL DE COMMANDES
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ORDERS_CHANNEL_ID,
+                text: message,
+                parse_mode: 'Markdown'
+            })
+        });
+
+        // Confirmation acheteur
+        tg.showAlert("Commande confirmée !", () => {
+            tg.close(); // Ferme la boutique
+        });
+
+    } catch (err) {
+        console.error("Erreur d'envoi :", err);
+        tg.showAlert("Erreur lors de la validation. Veuillez réessayer.");
+    }
+}
 
         renderProducts(products);
     </script>
