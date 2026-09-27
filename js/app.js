@@ -1,7 +1,4 @@
-// Initialisation profil utilisateur
-const name = telegramUser.username || telegramUser.first_name;
-document.getElementById('username-display').textContent = name;
-document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+
 
 // Affichage du catalogue
 function renderProducts(items) {
