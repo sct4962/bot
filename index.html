@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique MiniApp Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="user-header">
+        <div class="avatar" id="user-avatar">S</div>
+        <div class="user-info">
+            <span class="welcome-tag">Bienvenue</span>
+            <span class="username" id="username-display">Acheteur</span>
+        </div>
+    </div>
+
+    <div id="catalog-view">
+        <div class="controls-section">
+            <div class="count-badge" id="product-count">0 produits</div>
+            <select class="filter-select" id="category-filter" onchange="filterProducts()">
+                <option value="all">Voir tout</option>
+                <option value="cat1">Catégorie 1</option>
+                <option value="cat2">Catégorie 2</option>
+            </select>
+        </div>
+
+        <div class="catalog-container">
+            <div class="product-grid" id="product-grid"></div>
+        </div>
+    </div>
+
+    <div id="details-view" class="page-view">
+        <div class="details-card">
+            <img id="details-img" class="details-img" src="" alt="Produit">
+            <h2 id="details-title" class="details-title">Titre</h2>
+            <div id="details-price" class="details-price">0.00 €</div>
+            <p id="details-desc" class="details-desc">Description...</p>
+            <button class="btn btn-primary" id="add-to-cart-btn">🛒 Ajouter au panier</button>
+            <button class="btn btn-secondary" onclick="showCatalog()">← Retour à la boutique</button>
+        </div>
+    </div>
+
+    <div id="cart-view" class="page-view">
+        <div class="cart-card">
+            <h2 style="margin-bottom: 16px;">Mon Panier</h2>
+            <div id="cart-items-container"></div>
+            
+            <div class="cart-total-row">
+                <span>Total :</span>
+                <span id="cart-total-price" style="color: var(--accent-color);">0.00 €</span>
+            </div>
+
+            <button class="btn btn-success" onclick="submitOrder()">🛍️ Valider la commande</button>
+            <button class="btn btn-secondary" onclick="showCatalog()">← Continuer mes achats</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="showCatalog()">
+            <span class="nav-icon">🏠</span>
+            <span>Accueil</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">ℹ️</span>
+            <span>Infos</span>
+        </div>
+        <div class="nav-item" id="nav-cart" onclick="showCart()">
+            <span class="nav-icon">🛒</span>
+            <span class="badge-count" id="cart-badge">0</span>
+            <span>Panier</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">✉️</span>
+            <span>Contact</span>
+        </div>
+    </nav>
+
+    <!-- Inclusion des scripts JavaScript dans l'ordre -->
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
