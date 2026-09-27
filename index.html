@@ -409,6 +409,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        const BOT_USERNAME = "soulaxbot";
+
         let telegramUser = { username: "sct4962", first_name: "Client" };
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             telegramUser = tg.initDataUnsafe.user;
@@ -568,14 +570,15 @@
 
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // Structure les données à envoyer au bot de manière transparente
-            const orderData = {
-                items: cart,
-                total: totalAmount.toFixed(2)
-            };
+            let text = "🚨 *NOUVELLE COMMANDE*\n\n";
+            cart.forEach(item => {
+                text += `• ${item.title} (x${item.quantity}) - ${(item.price * item.quantity).toFixed(2)}€\n`;
+            });
+            text += `\n💰 *Total :* ${totalAmount.toFixed(2)} €`;
 
-            // Envoie les données en arrière-plan au bot Telegram et ferme la MiniApp
-            tg.sendData(JSON.stringify(orderData));
+            const url = `https://t.me/${BOT_USERNAME}?text=${encodeURIComponent(text)}`;
+            tg.openTelegramLink(url);
+            tg.close();
         }
 
         renderProducts(products);
