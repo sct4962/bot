@@ -324,3 +324,34 @@ body {
     justify-content: center;
     font-weight: bold;
 }
+
+/* Header / En-tête du Shop */
+.shop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    margin-bottom: 12px;
+}
+
+.shop-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shop-logo {
+    font-size: 1.5rem;
+}
+
+.shop-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin: 0;
+    color: #ffffff;
+    text-transform: uppercase;
+}
