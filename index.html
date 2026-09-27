@@ -3,212 +3,531 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boutique Telegram</title>
-    <!-- Script officiel Telegram Mini App -->
+    <title>Boutique MiniApp Telegram</title>
+    <!-- SDK Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Adapté au thème clair/sombre de Telegram */
         :root {
-            --bg-color: var(--tg-theme-bg-color, #ffffff);
-            --text-color: var(--tg-theme-text-color, #000000);
-            --button-color: var(--tg-theme-button-color, #2481cc);
-            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
-            --hint-color: var(--tg-theme-hint-color, #999999);
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --card-border: #1e293b;
+            --accent-color: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --tag-bg: rgba(15, 23, 42, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
+            padding-bottom: 80px; /* Espace pour la barre de navigation du bas */
+        }
+
+        /* --- En-tête Utilisateur --- */
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             padding: 16px;
-            box-sizing: border-box;
         }
 
-        h1, h2 {
-            text-align: center;
-            margin-top: 0;
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--accent-color);
         }
 
-        /* Vue Liste des Produits */
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .welcome-tag::before {
+            content: "•";
+            font-size: 1rem;
+        }
+
+        .username {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* --- Barre d'outils et Filtres --- */
+        .controls-section {
+            padding: 0 16px 12px 16px;
+        }
+
+        .count-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* --- Grille des Produits --- */
+        .catalog-container {
+            padding: 0 16px;
+        }
+
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin-top: 20px;
         }
 
         .product-card {
-            background-color: var(--secondary-bg);
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
             cursor: pointer;
-            transition: transform 0.1s ease;
+            transition: border-color 0.2s ease, transform 0.1s ease;
         }
 
         .product-card:active {
             transform: scale(0.98);
         }
 
-        .product-card img {
+        .image-container {
+            position: relative;
             width: 100%;
-            height: 100px;
+            padding-top: 100%; /* Ratio 1:1 */
+            background-color: #000;
+        }
+
+        .product-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border-radius: 8px;
         }
 
-        .product-card h3 {
-            font-size: 1rem;
-            margin: 8px 0 4px 0;
-        }
-
-        .product-card .price {
-            font-weight: bold;
-            color: var(--button-color);
-        }
-
-        /* Vue Détails Produit */
-        #details-view {
-            display: none; /* Caché par défaut */
-            flex-direction: column;
+        .fav-btn {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
             align-items: center;
-            text-align: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--accent-color);
         }
 
-        #details-view img {
+        .tag-overlay {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            background: var(--tag-bg);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-muted);
+        }
+
+        .product-details {
+            padding: 10px;
+        }
+
+        .product-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- Vue Détails Produit --- */
+        #details-view {
+            display: none;
+            padding: 16px;
+        }
+
+        .details-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 16px;
+        }
+
+        .details-img {
             width: 100%;
-            max-width: 300px;
-            height: 200px;
+            max-height: 280px;
             object-fit: cover;
             border-radius: 12px;
             margin-bottom: 16px;
         }
 
-        #details-description {
-            color: var(--hint-color);
+        .details-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .details-price {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .details-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
             margin-bottom: 20px;
         }
 
         .back-btn {
-            background-color: var(--secondary-bg);
+            width: 100%;
+            background-color: var(--card-border);
             color: var(--text-color);
             border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
             cursor: pointer;
+        }
+
+        /* --- Barre de Navigation Inférieure --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            text-decoration: none;
+            position: relative;
+            cursor: pointer;
+            width: 14%;
+        }
+
+        .nav-item.active {
+            color: var(--accent-color);
+        }
+
+        .nav-icon {
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -2px;
+            right: 12px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <!-- ENTÊTE DE LA BOUTIQUE -->
-    <h1 id="shop-title">Ma Boutique</h1>
-
-    <!-- 1. VUE CATALOGUE PRODUITS -->
-    <div id="catalog-view">
-        <div class="product-grid" id="product-list">
-            <!-- Les produits seront générés dynamiquement par le script -->
+    <!-- En-tête Profil Utilisateur -->
+    <div class="user-header">
+        <div class="avatar" id="user-avatar">S</div>
+        <div class="user-info">
+            <span class="welcome-tag">Bienvenue</span>
+            <span class="username" id="username-display">sct4962</span>
         </div>
     </div>
 
-    <!-- 2. VUE DÉTAILS PRODUIT (Partagée pour tous les produits) -->
-    <div id="details-view">
-        <img id="details-image" src="" alt="Image produit">
-        <h2 id="details-title">Nom du produit</h2>
-        <p id="details-price" class="price">0.00 €</p>
-        <p id="details-description">Description du produit...</p>
-        
-        <button class="back-btn" onclick="showCatalog()">← Retour au catalogue</button>
+    <!-- VUE CATALOGUE PRINCIPAL -->
+    <div id="catalog-view">
+        <!-- Compteur & Filtres -->
+        <div class="controls-section">
+            <div class="count-badge" id="product-count">0 produits</div>
+            <div class="filters-row">
+                <select class="filter-select" id="category-filter" onchange="filterProducts()">
+                    <option value="all">Catégories</option>
+                    <option value="vetements">Vêtements</option>
+                    <option value="accessoires">Accessoires</option>
+                </select>
+                <select class="filter-select" id="farm-filter" onchange="filterProducts()">
+                    <option value="all">Farms</option>
+                    <option value="zeclair">Zeclair Farm</option>
+                    <option value="fruitloop">Fruitloop Farm</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Liste des Cartes Produits -->
+        <div class="catalog-container">
+            <div class="product-grid" id="product-grid">
+                <!-- Rempli dynamiquement par JS -->
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Initialisation de l'API Telegram WebApp
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Agrandi la webapp pour occuper tout l'écran
+    <!-- VUE DÉTAILS D'UN PRODUIT (Page Unique Dynamique) -->
+    <div id="details-view">
+        <div class="details-card">
+            <img id="details-img" class="details-img" src="" alt="Produit">
+            <h2 id="details-title" class="details-title">Titre</h2>
+            <div id="details-price" class="details-price">0.00 €</div>
+            <p id="details-desc" class="details-desc">Description...</p>
+            <button class="back-btn" onclick="showCatalog()">← Retour à la boutique</button>
+        </div>
+    </div>
 
-        // Base de données locale de vos produits
+    <!-- Barre de Navigation en Bas -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="showCatalog()">
+            <span class="nav-icon">🏠</span>
+            <span>Accueil</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">ℹ️</span>
+            <span>Infos</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">🛒</span>
+            <span class="badge-count">1</span>
+            <span>Panier</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">⭐</span>
+            <span>Avis</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span>Support</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">✉️</span>
+            <span>Contact</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profil</span>
+        </div>
+    </nav>
+
+    <script>
+        // Initialisation de l'API Telegram Mini App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Récupération de l'utilisateur Telegram réel si disponible
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            const name = user.username || user.first_name || "sct4962";
+            document.getElementById('username-display').textContent = name;
+            document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Base de données des produits (exemple reproduisant l'image)
         const products = [
             {
                 id: 1,
-                name: "Produit 1",
-                price: "15.00 €",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4W5se-3sXcI-CuvSm5GbPoSk655stnvqEeWyX1M79KA&s=10",
-                description: "Voici la description détaillée du Produit 1. Il est fabriqué avec des matériaux de qualité."
+                title: "Perm x Zeclair 🌑⚡",
+                tag: "PREMIUM STATIC US...",
+                sub: "N/A",
+                category: "vetements",
+                farm: "zeclair",
+                price: "45.00 €",
+                image: "https://via.placeholder.com/300/111827/38bdf8?text=Perm+x+Zeclair",
+                description: "Édition limitée issue du partenariat Perm x Zeclair. Qualité supérieure, finition haut de gamme."
             },
             {
                 id: 2,
-                name: "Produit 2",
-                price: "29.99 €",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBfsihCjIV5Ok98Nq7kuvkzQdj0amGaw4zHjtUfkyKgg&s=10",
-                description: "Découvrez le Produit 2. Parfait pour un usage quotidien avec ses fonctionnalités avancées."
+                title: "Dosi x Fruitloop 🍇🌈",
+                tag: "PREMIUM STATIC US...",
+                sub: "N/A",
+                category: "vetements",
+                farm: "fruitloop",
+                price: "50.00 €",
+                image: "https://via.placeholder.com/300/111827/38bdf8?text=Dosi+x+Fruitloop",
+                description: "Design exclusif Dosi x Fruitloop. Tissu respirant et résistant adapté à un usage quotidien."
             },
             {
                 id: 3,
-                name: "Produit 3",
-                price: "49.00 €",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-p0LsaOq99Jocw3vOpBBOmrCEVtdNAcEFbDL0SRbmWg&s=10",
-                description: "Description du Produit 3. Un excellent choix si vous cherchez quelque chose de durable."
+                title: "Galactic Warheadz 📐",
+                tag: "PREMIUM STATIC US...",
+                sub: "N/A",
+                category: "accessoires",
+                farm: "zeclair",
+                price: "35.00 €",
+                image: "https://via.placeholder.com/300/111827/38bdf8?text=Galactic",
+                description: "Modèle Galactic Warheadz complet avec badge officiel."
+            },
+            {
+                id: 4,
+                title: "Jumbo Gusherz 🍇",
+                tag: "PREMIUM STATIC US...",
+                sub: "N/A",
+                category: "accessoires",
+                farm: "fruitloop",
+                price: "40.00 €",
+                image: "https://via.placeholder.com/300/111827/38bdf8?text=Jumbo+Gusherz",
+                description: "Dernière série Jumbo Gusherz disponible en quantité limitée."
             }
         ];
 
-        // Éléments du DOM
-        const catalogView = document.getElementById('catalog-view');
-        const detailsView = document.getElementById('details-view');
-        const productList = document.getElementById('product-list');
+        // Rendu dynamique de la grille des produits
+        function renderProducts(items) {
+            const grid = document.getElementById('product-grid');
+            const countLabel = document.getElementById('product-count');
+            
+            grid.innerHTML = '';
+            countLabel.textContent = `${items.length} produit${items.length > 1 ? 's' : ''}`;
 
-        // Afficher la liste des produits
-        function renderProducts() {
-            productList.innerHTML = '';
-            products.forEach(product => {
+            items.forEach(prod => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.onclick = () => showDetails(product.id);
+                card.onclick = () => showDetails(prod.id);
 
                 card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <div class="price">${product.price}</div>
+                    <div class="image-container">
+                        <img class="product-img" src="${prod.image}" alt="${prod.title}">
+                        <div class="fav-btn">★</div>
+                        <div class="tag-overlay">🏷️ ${prod.tag}</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-title">${prod.title}</div>
+                        <div class="product-sub">🏠 ${prod.sub}</div>
+                    </div>
                 `;
-                productList.appendChild(card);
+                grid.appendChild(card);
             });
         }
 
-        // Afficher la page de détails d'un produit
-        function showDetails(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
+        // Filtre selon les catégories et farms
+        function filterProducts() {
+            const cat = document.getElementById('category-filter').value;
+            const farm = document.getElementById('farm-filter').value;
 
-            // Mise à jour des textes et images
-            document.getElementById('details-image').src = product.image;
-            document.getElementById('details-title').textContent = product.name;
-            document.getElementById('details-price').textContent = product.price;
-            document.getElementById('details-description').textContent = product.description;
+            const filtered = products.filter(p => {
+                const matchCat = (cat === 'all' || p.category === cat);
+                const matchFarm = (farm === 'all' || p.farm === farm);
+                return matchCat && matchFarm;
+            });
 
-            // Masquer le catalogue et afficher les détails
-            catalogView.style.display = 'none';
-            detailsView.style.display = 'flex';
+            renderProducts(filtered);
+        }
 
-            // Activer le bouton Retour natif de Telegram
+        // Afficher la page de détails
+        function showDetails(id) {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+
+            document.getElementById('details-img').src = prod.image;
+            document.getElementById('details-title').textContent = prod.title;
+            document.getElementById('details-price').textContent = prod.price;
+            document.getElementById('details-desc').textContent = prod.description;
+
+            document.getElementById('catalog-view').style.display = 'none';
+            document.getElementById('details-view').style.display = 'block';
+
+            // Bouton Retour de Telegram
             tg.BackButton.show();
             tg.BackButton.onClick(showCatalog);
         }
 
-        // Retourner au catalogue
+        // Revenir au catalogue
         function showCatalog() {
-            detailsView.style.display = 'none';
-            catalogView.style.display = 'block';
+            document.getElementById('details-view').style.display = 'none';
+            document.getElementById('catalog-view').style.display = 'block';
 
-            // Masquer le bouton Retour natif Telegram
             tg.BackButton.hide();
             tg.BackButton.offClick(showCatalog);
         }
 
-        // Lancement au chargement de la page
-        renderProducts();
+        // Affichage initial
+        renderProducts(products);
     </script>
 </body>
 </html>
