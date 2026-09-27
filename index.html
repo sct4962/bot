@@ -3,13 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
+    <title>Boutique Telegram</title>
+    <!-- Script officiel Telegram Mini App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 30px; }
+        /* Adapté au thème clair/sombre de Telegram */
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --button-color: var(--tg-theme-button-color, #2481cc);
+            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        /* Vue Liste des Produits */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .product-card h3 {
+            font-size: 1rem;
+            margin: 8px 0 4px 0;
+        }
+
+        .product-card .price {
+            font-weight: bold;
+            color: var(--button-color);
+        }
+
+        /* Vue Détails Produit */
+        #details-view {
+            display: none; /* Caché par défaut */
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        #details-view img {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        #details-description {
+            color: var(--hint-color);
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h2>MIDI/MIDI PRODUCTION</h2>
+
+    <!-- ENTÊTE DE LA BOUTIQUE -->
+    <h1 id="shop-title">Ma Boutique</h1>
+
+    <!-- 1. VUE CATALOGUE PRODUITS -->
+    <div id="catalog-view">
+        <div class="product-grid" id="product-list">
+            <!-- Les produits seront générés dynamiquement par le script -->
+        </div>
+    </div>
+
+    <!-- 2. VUE DÉTAILS PRODUIT (Partagée pour tous les produits) -->
+    <div id="details-view">
+        <img id="details-image" src="" alt="Image produit">
+        <h2 id="details-title">Nom du produit</h2>
+        <p id="details-price" class="price">0.00 €</p>
+        <p id="details-description">Description du produit...</p>
+        
+        <button class="back-btn" onclick="showCatalog()">← Retour au catalogue</button>
+    </div>
+
+    <script>
+        // Initialisation de l'API Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Agrandi la webapp pour occuper tout l'écran
+
+        // Base de données locale de vos produits
+        const products = [
+            {
+                id: 1,
+                name: "Produit 1",
+                price: "15.00 €",
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4W5se-3sXcI-CuvSm5GbPoSk655stnvqEeWyX1M79KA&s=10",
+                description: "Voici la description détaillée du Produit 1. Il est fabriqué avec des matériaux de qualité."
+            },
+            {
+                id: 2,
+                name: "Produit 2",
+                price: "29.99 €",
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBfsihCjIV5Ok98Nq7kuvkzQdj0amGaw4zHjtUfkyKgg&s=10",
+                description: "Découvrez le Produit 2. Parfait pour un usage quotidien avec ses fonctionnalités avancées."
+            },
+            {
+                id: 3,
+                name: "Produit 3",
+                price: "49.00 €",
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-p0LsaOq99Jocw3vOpBBOmrCEVtdNAcEFbDL0SRbmWg&s=10",
+                description: "Description du Produit 3. Un excellent choix si vous cherchez quelque chose de durable."
+            }
+        ];
+
+        // Éléments du DOM
+        const catalogView = document.getElementById('catalog-view');
+        const detailsView = document.getElementById('details-view');
+        const productList = document.getElementById('product-list');
+
+        // Afficher la liste des produits
+        function renderProducts() {
+            productList.innerHTML = '';
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => showDetails(product.id);
+
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <div class="price">${product.price}</div>
+                `;
+                productList.appendChild(card);
+            });
+        }
+
+        // Afficher la page de détails d'un produit
+        function showDetails(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Mise à jour des textes et images
+            document.getElementById('details-image').src = product.image;
+            document.getElementById('details-title').textContent = product.name;
+            document.getElementById('details-price').textContent = product.price;
+            document.getElementById('details-description').textContent = product.description;
+
+            // Masquer le catalogue et afficher les détails
+            catalogView.style.display = 'none';
+            detailsView.style.display = 'flex';
+
+            // Activer le bouton Retour natif de Telegram
+            tg.BackButton.show();
+            tg.BackButton.onClick(showCatalog);
+        }
+
+        // Retourner au catalogue
+        function showCatalog() {
+            detailsView.style.display = 'none';
+            catalogView.style.display = 'block';
+
+            // Masquer le bouton Retour natif Telegram
+            tg.BackButton.hide();
+            tg.BackButton.offClick(showCatalog);
+        }
+
+        // Lancement au chargement de la page
+        renderProducts();
+    </script>
 </body>
 </html>
