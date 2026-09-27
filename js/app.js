@@ -1,5 +1,3 @@
-
-
 // Affichage du catalogue
 function renderProducts(items) {
     const grid = document.getElementById('product-grid');
