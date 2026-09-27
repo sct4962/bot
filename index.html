@@ -9,14 +9,15 @@
 </head>
 <body>
 
-    <div class="user-header">
-        <div class="avatar" id="user-avatar">S</div>
-        <div class="user-info">
-            <span class="welcome-tag">Bienvenue</span>
-            <span class="username" id="username-display">Acheteur</span>
+    <!-- En-tête du Shop -->
+    <header class="shop-header">
+        <div class="shop-brand">
+            <span class="shop-logo">🛍️</span>
+            <h1 class="shop-title">SOULAX SHOP</h1>
         </div>
-    </div>
+    </header>
 
+    <!-- Page Catalogue -->
     <div id="catalog-view">
         <div class="controls-section">
             <div class="count-badge" id="product-count">0 produits</div>
@@ -32,6 +33,7 @@
         </div>
     </div>
 
+    <!-- Page Détails Produit -->
     <div id="details-view" class="page-view">
         <div class="details-card">
             <img id="details-img" class="details-img" src="" alt="Produit">
@@ -43,6 +45,7 @@
         </div>
     </div>
 
+    <!-- Page Panier -->
     <div id="cart-view" class="page-view">
         <div class="cart-card">
             <h2 style="margin-bottom: 16px;">Mon Panier</h2>
@@ -58,6 +61,7 @@
         </div>
     </div>
 
+    <!-- Navigation du bas -->
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="showCatalog()">
             <span class="nav-icon">🏠</span>
