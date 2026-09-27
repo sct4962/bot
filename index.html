@@ -14,7 +14,8 @@
             --accent-color: #38bdf8;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
-            --tag-bg: rgba(15, 23, 42, 0.85);
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
         }
 
         * {
@@ -28,7 +29,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding-bottom: 80px; /* Espace pour la barre du bas */
+            padding-bottom: 90px;
         }
 
         /* --- En-tête Utilisateur --- */
@@ -135,7 +136,7 @@
         .image-container {
             position: relative;
             width: 100%;
-            padding-top: 100%; /* Square ratio */
+            padding-top: 100%;
             background-color: #000;
         }
 
@@ -148,24 +149,6 @@
             object-fit: cover;
         }
 
-        .tag-overlay {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            right: 8px;
-            background: var(--tag-bg);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--text-muted);
-        }
-
         .product-details {
             padding: 10px;
         }
@@ -176,15 +159,22 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 4px;
         }
 
-        /* --- Vue Détails Produit --- */
-        #details-view {
+        .product-price {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        /* --- Vues Spécifiques (Détails & Panier) --- */
+        .page-view {
             display: none;
             padding: 16px;
         }
 
-        .details-card {
+        .details-card, .cart-card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
@@ -219,18 +209,87 @@
             margin-bottom: 20px;
         }
 
-        .back-btn {
+        /* --- Boutons --- */
+        .btn {
             width: 100%;
-            background-color: var(--card-border);
-            color: var(--text-color);
-            border: none;
             padding: 12px;
             border-radius: 12px;
             font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background-color: var(--card-border);
+            color: var(--text-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: #fff;
+        }
+
+        /* --- Éléments du Panier --- */
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .cart-item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-item-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .cart-item-price {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+        }
+
+        .cart-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background-color: var(--card-border);
+            color: var(--text-color);
+            border: none;
+            font-weight: bold;
             cursor: pointer;
         }
 
-        /* --- Barre de Navigation Inférieure Simplifiée --- */
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* --- Barre de Navigation Inférieure --- */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -269,12 +328,12 @@
         .badge-count {
             position: absolute;
             top: -2px;
-            right: 20px;
-            background-color: #ef4444;
+            right: 18px;
+            background-color: var(--danger-color);
             color: white;
-            font-size: 0.6rem;
-            width: 14px;
-            height: 14px;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -294,9 +353,8 @@
         </div>
     </div>
 
-    <!-- VUE CATALOGUE PRINCIPAL -->
+    <!-- 1. VUE CATALOGUE PRINCIPAL -->
     <div id="catalog-view">
-        <!-- Compteur & Filtre par Catégorie -->
         <div class="controls-section">
             <div class="count-badge" id="product-count">0 produits</div>
             <select class="filter-select" id="category-filter" onchange="filterProducts()">
@@ -306,28 +364,42 @@
             </select>
         </div>
 
-        <!-- Liste des Cartes Produits -->
         <div class="catalog-container">
-            <div class="product-grid" id="product-grid">
-                <!-- Rempli dynamiquement par JS -->
-            </div>
+            <div class="product-grid" id="product-grid"></div>
         </div>
     </div>
 
-    <!-- VUE DÉTAILS D'UN PRODUIT -->
-    <div id="details-view">
+    <!-- 2. VUE DÉTAILS D'UN PRODUIT -->
+    <div id="details-view" class="page-view">
         <div class="details-card">
             <img id="details-img" class="details-img" src="" alt="Produit">
             <h2 id="details-title" class="details-title">Titre</h2>
             <div id="details-price" class="details-price">0.00 €</div>
             <p id="details-desc" class="details-desc">Description...</p>
-            <button class="back-btn" onclick="showCatalog()">← Retour à la boutique</button>
+            <button class="btn btn-primary" id="add-to-cart-btn">🛒 Ajouter au panier</button>
+            <button class="btn btn-secondary" onclick="showCatalog()">← Retour à la boutique</button>
         </div>
     </div>
 
-    <!-- Barre de Navigation en Bas (Simplifiée) -->
+    <!-- 3. VUE PANIER -->
+    <div id="cart-view" class="page-view">
+        <div class="cart-card">
+            <h2 style="margin-bottom: 16px;">Mon Panier</h2>
+            <div id="cart-items-container"></div>
+            
+            <div class="cart-total-row">
+                <span>Total :</span>
+                <span id="cart-total-price" style="color: var(--accent-color);">0.00 €</span>
+            </div>
+
+            <button class="btn btn-success" onclick="submitOrder()">🛍️ Valider la commande</button>
+            <button class="btn btn-secondary" onclick="showCatalog()">← Continuer mes achats</button>
+        </div>
+    </div>
+
+    <!-- Barre de Navigation Inférieure -->
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="showCatalog()">
+        <div class="nav-item active" id="nav-home" onclick="showCatalog()">
             <span class="nav-icon">🏠</span>
             <span>Accueil</span>
         </div>
@@ -335,9 +407,9 @@
             <span class="nav-icon">ℹ️</span>
             <span>Infos</span>
         </div>
-        <div class="nav-item">
+        <div class="nav-item" id="nav-cart" onclick="showCart()">
             <span class="nav-icon">🛒</span>
-            <span class="badge-count">1</span>
+            <span class="badge-count" id="cart-badge">0</span>
             <span>Panier</span>
         </div>
         <div class="nav-item">
@@ -347,121 +419,187 @@
     </nav>
 
     <script>
-        // Initialisation de l'API Telegram Mini App
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Récupération de l'utilisateur Telegram réel si disponible
+        // Profil Utilisateur
+        let telegramUser = { username: "sct4962", first_name: "Sacha" };
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const user = tg.initDataUnsafe.user;
-            const name = user.username || user.first_name || "sct4962";
+            telegramUser = tg.initDataUnsafe.user;
+            const name = telegramUser.username || telegramUser.first_name;
             document.getElementById('username-display').textContent = name;
             document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
         }
 
-        // Base de données des produits
+        // Produits
         const products = [
-            {
-                id: 1,
-                title: "Perm x Zeclair 🌑⚡",
-                tag: "PREMIUM STATIC US...",
-                category: "cat1",
-                price: "45.00 €",
-                image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+1",
-                description: "Voici la description complète et détaillée du Produit 1."
-            },
-            {
-                id: 2,
-                title: "Dosi x Fruitloop 🍇🌈",
-                tag: "PREMIUM STATIC US...",
-                category: "cat1",
-                price: "50.00 €",
-                image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+2",
-                description: "Voici la description complète et détaillée du Produit 2."
-            },
-            {
-                id: 3,
-                title: "Galactic Warheadz 📐",
-                tag: "PREMIUM STATIC US...",
-                category: "cat2",
-                price: "35.00 €",
-                image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+3",
-                description: "Voici la description complète et détaillée du Produit 3."
-            },
-            {
-                id: 4,
-                title: "Jumbo Gusherz 🍇",
-                tag: "PREMIUM STATIC US...",
-                category: "cat2",
-                price: "40.00 €",
-                image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+4",
-                description: "Voici la description complète et détaillée du Produit 4."
-            }
+            { id: 1, title: "Perm x Zeclair 🌑⚡", category: "cat1", price: 45.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+1", description: "Description détaillée du produit 1." },
+            { id: 2, title: "Dosi x Fruitloop 🍇🌈", category: "cat1", price: 50.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+2", description: "Description détaillée du produit 2." },
+            { id: 3, title: "Galactic Warheadz 📐", category: "cat2", price: 35.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+3", description: "Description détaillée du produit 3." },
+            { id: 4, title: "Jumbo Gusherz 🍇", category: "cat2", price: 40.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+4", description: "Description détaillée du produit 4." }
         ];
 
-        // Rendu dynamique de la grille des produits
+        // État du panier
+        let cart = [];
+        let selectedProductId = null;
+
+        // Rendu du catalogue
         function renderProducts(items) {
             const grid = document.getElementById('product-grid');
-            const countLabel = document.getElementById('product-count');
-            
             grid.innerHTML = '';
-            countLabel.textContent = `${items.length} produit${items.length > 1 ? 's' : ''}`;
+            document.getElementById('product-count').textContent = `${items.length} produit${items.length > 1 ? 's' : ''}`;
 
             items.forEach(prod => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.onclick = () => showDetails(prod.id);
-
                 card.innerHTML = `
                     <div class="image-container">
                         <img class="product-img" src="${prod.image}" alt="${prod.title}">
-                        <div class="tag-overlay">🏷️ ${prod.tag}</div>
                     </div>
                     <div class="product-details">
                         <div class="product-title">${prod.title}</div>
+                        <div class="product-price">${prod.price.toFixed(2)} €</div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // Filtrer les produits
+        // Filtre
         function filterProducts() {
-            const selectedCategory = document.getElementById('category-filter').value;
-
-            if (selectedCategory === 'all') {
-                renderProducts(products);
-            } else {
-                const filtered = products.filter(p => p.category === selectedCategory);
-                renderProducts(filtered);
-            }
+            const cat = document.getElementById('category-filter').value;
+            renderProducts(cat === 'all' ? products : products.filter(p => p.category === cat));
         }
 
-        // Afficher la vue de détails
+        // Vues
+        function setActiveNav(id) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(id) document.getElementById(id).classList.add('active');
+        }
+
+        function showCatalog() {
+            document.querySelectorAll('.page-view').forEach(el => el.style.display = 'none');
+            document.getElementById('catalog-view').style.display = 'block';
+            setActiveNav('nav-home');
+            tg.BackButton.hide();
+        }
+
         function showDetails(id) {
             const prod = products.find(p => p.id === id);
             if (!prod) return;
+            selectedProductId = id;
 
             document.getElementById('details-img').src = prod.image;
             document.getElementById('details-title').textContent = prod.title;
-            document.getElementById('details-price').textContent = prod.price;
+            document.getElementById('details-price').textContent = `${prod.price.toFixed(2)} €`;
             document.getElementById('details-desc').textContent = prod.description;
+            
+            document.getElementById('add-to-cart-btn').onclick = () => {
+                addToCart(prod.id);
+                showCart();
+            };
 
             document.getElementById('catalog-view').style.display = 'none';
+            document.getElementById('cart-view').style.display = 'none';
             document.getElementById('details-view').style.display = 'block';
 
-            // Afficher le bouton Retour natif Telegram
             tg.BackButton.show();
             tg.BackButton.onClick(showCatalog);
         }
 
-        // Revenir au catalogue
-        function showCatalog() {
+        function showCart() {
+            renderCart();
+            document.getElementById('catalog-view').style.display = 'none';
             document.getElementById('details-view').style.display = 'none';
-            document.getElementById('catalog-view').style.display = 'block';
+            document.getElementById('cart-view').style.display = 'block';
+            setActiveNav('nav-cart');
 
-            tg.BackButton.hide();
-            tg.BackButton.offClick(showCatalog);
+            tg.BackButton.show();
+            tg.BackButton.onClick(showCatalog);
+        }
+
+        // Gestion du panier
+        function addToCart(productId) {
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                const prod = products.find(p => p.id === productId);
+                cart.push({ id: prod.id, title: prod.title, price: prod.price, quantity: 1 });
+            }
+            updateCartBadge();
+        }
+
+        function updateQuantity(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== productId);
+                }
+            }
+            updateCartBadge();
+            renderCart();
+        }
+
+        function updateCartBadge() {
+            const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+            document.getElementById('cart-badge').textContent = totalItems;
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 20px 0;">Votre panier est vide.</p>`;
+                document.getElementById('cart-total-price').textContent = '0.00 €';
+                return;
+            }
+
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const row = document.createElement('div');
+                row.className = 'cart-item';
+                row.innerHTML = `
+                    <div class="cart-item-info">
+                        <span class="cart-item-title">${item.title}</span>
+                        <span class="cart-item-price">${item.price.toFixed(2)} € x ${item.quantity} = ${itemTotal.toFixed(2)} €</span>
+                    </div>
+                    <div class="cart-controls">
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            document.getElementById('cart-total-price').textContent = `${total.toFixed(2)} €`;
+        }
+
+        // --- ENVOI DE LA COMMANDE À TELEGRAM ---
+        function submitOrder() {
+            if (cart.length === 0) {
+                tg.showAlert("Votre panier est vide !");
+                return;
+            }
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Préparation des données envoyées au bot
+            const orderPayload = {
+                items: cart,
+                total: totalAmount.toFixed(2),
+                user: telegramUser
+            };
+
+            // Envoie les données au serveur du Bot via Telegram WebApp
+            tg.sendData(JSON.stringify(orderPayload));
         }
 
         // Initialisation
