@@ -422,8 +422,10 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        const BOT_USERNAME = "soulaxbot";
+
         // Profil Utilisateur
-        let telegramUser = { username: "sct4962", first_name: "Sacha" };
+        let telegramUser = { username: "sct4962", first_name: "Client" };
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             telegramUser = tg.initDataUnsafe.user;
             const name = telegramUser.username || telegramUser.first_name;
@@ -441,7 +443,6 @@
 
         // État du panier
         let cart = [];
-        let selectedProductId = null;
 
         // Rendu du catalogue
         function renderProducts(items) {
@@ -488,7 +489,6 @@
         function showDetails(id) {
             const prod = products.find(p => p.id === id);
             if (!prod) return;
-            selectedProductId = id;
 
             document.getElementById('details-img').src = prod.image;
             document.getElementById('details-title').textContent = prod.title;
@@ -582,7 +582,7 @@
             document.getElementById('cart-total-price').textContent = `${total.toFixed(2)} €`;
         }
 
-        // --- ENVOI DE LA COMMANDE À TELEGRAM ---
+        // --- ENVOI DE LA COMMANDE ---
         function submitOrder() {
             if (cart.length === 0) {
                 tg.showAlert("Votre panier est vide !");
@@ -591,15 +591,16 @@
 
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // Préparation des données envoyées au bot
-            const orderPayload = {
-                items: cart,
-                total: totalAmount.toFixed(2),
-                user: telegramUser
-            };
+            let text = "🚨 *NOUVELLE COMMANDE*\n\n";
+            cart.forEach(item => {
+                text += `• ${item.title} (x${item.quantity}) - ${(item.price * item.quantity).toFixed(2)}€\n`;
+            });
+            text += `\n💰 *Total :* ${totalAmount.toFixed(2)} €`;
 
-            // Envoie les données au serveur du Bot via Telegram WebApp
-            tg.sendData(JSON.stringify(orderPayload));
+            // Redirige vers le bot Telegram avec le message de commande pré-rempli
+            const url = `https://t.me/${BOT_USERNAME}?text=${encodeURIComponent(text)}`;
+            tg.openTelegramLink(url);
+            tg.close();
         }
 
         // Initialisation
