@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- En-tête du Shop -->
     <header class="shop-header">
         <div class="shop-brand">
             <span class="shop-logo">🛍️</span>
@@ -61,13 +60,64 @@
         </div>
     </div>
 
-    <!-- Navigation du bas -->
+    <!-- Page Informations -->
+    <div id="infos-view" class="page-view">
+        <div class="info-card">
+            <div class="info-header">
+                <span class="info-icon">🚚</span>
+                <div>
+                    <h3>Titre 1</h3>
+                    <p>Descirption 1</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-header">
+                <span class="info-icon">💳</span>
+                <div>
+                    <h3>Titre 2</h3>
+                    <p>Descirption 2</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-header">
+                <span class="info-icon">🛡️</span>
+                <div>
+                    <h3>Text 3</h3>
+                    <p>Descirption 3</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Contact -->
+    <div id="contact-view" class="page-view">
+        <div class="contact-card">
+            <div class="contact-avatar">💬</div>
+            <h2>Service Client</h2>
+            <p>Une question avant de commander ? Besoin d'un renseignement sur un produit ?</p>
+
+            <a href="https://t.me/sct4962" target="_blank" class="btn btn-primary contact-btn">
+                📩 Contacter sur Telegram
+            </a>
+
+            <div class="contact-hours">
+                <span>⚡ Réponse rapide</span>
+                <span>•</span>
+                <span>Disponible 7j/7</span>
+            </div>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="showCatalog()">
             <span class="nav-icon">🏠</span>
             <span>Accueil</span>
         </div>
-        <div class="nav-item">
+        <div class="nav-item" id="nav-infos" onclick="showInfos()">
             <span class="nav-icon">ℹ️</span>
             <span>Infos</span>
         </div>
@@ -76,13 +126,12 @@
             <span class="badge-count" id="cart-badge">0</span>
             <span>Panier</span>
         </div>
-        <div class="nav-item">
+        <div class="nav-item" id="nav-contact" onclick="showContact()">
             <span class="nav-icon">✉️</span>
             <span>Contact</span>
         </div>
     </nav>
 
-    <!-- Inclusion des scripts JavaScript dans l'ordre -->
     <script src="js/config.js"></script>
     <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
