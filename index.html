@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boutique MiniApp Telegram</title>
-    <!-- SDK Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -32,7 +31,6 @@
             padding-bottom: 90px;
         }
 
-        /* --- En-tête Utilisateur --- */
         .user-header {
             display: flex;
             align-items: center;
@@ -79,7 +77,6 @@
             font-weight: 700;
         }
 
-        /* --- Barre d'outils et Filtre --- */
         .controls-section {
             padding: 0 16px 12px 16px;
         }
@@ -108,7 +105,6 @@
             cursor: pointer;
         }
 
-        /* --- Grille des Produits --- */
         .catalog-container {
             padding: 0 16px;
         }
@@ -168,7 +164,6 @@
             font-weight: 700;
         }
 
-        /* --- Vues Spécifiques (Détails & Panier) --- */
         .page-view {
             display: none;
             padding: 16px;
@@ -209,7 +204,6 @@
             margin-bottom: 20px;
         }
 
-        /* --- Boutons --- */
         .btn {
             width: 100%;
             padding: 12px;
@@ -239,7 +233,6 @@
             color: #fff;
         }
 
-        /* --- Éléments du Panier --- */
         .cart-item {
             display: flex;
             align-items: center;
@@ -289,7 +282,6 @@
             font-weight: bold;
         }
 
-        /* --- Barre de Navigation Inférieure --- */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -344,7 +336,6 @@
 </head>
 <body>
 
-    <!-- En-tête Profil Utilisateur -->
     <div class="user-header">
         <div class="avatar" id="user-avatar">S</div>
         <div class="user-info">
@@ -353,7 +344,6 @@
         </div>
     </div>
 
-    <!-- 1. VUE CATALOGUE PRINCIPAL -->
     <div id="catalog-view">
         <div class="controls-section">
             <div class="count-badge" id="product-count">0 produits</div>
@@ -369,7 +359,6 @@
         </div>
     </div>
 
-    <!-- 2. VUE DÉTAILS D'UN PRODUIT -->
     <div id="details-view" class="page-view">
         <div class="details-card">
             <img id="details-img" class="details-img" src="" alt="Produit">
@@ -381,7 +370,6 @@
         </div>
     </div>
 
-    <!-- 3. VUE PANIER -->
     <div id="cart-view" class="page-view">
         <div class="cart-card">
             <h2 style="margin-bottom: 16px;">Mon Panier</h2>
@@ -397,7 +385,6 @@
         </div>
     </div>
 
-    <!-- Barre de Navigation Inférieure -->
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="showCatalog()">
             <span class="nav-icon">🏠</span>
@@ -422,9 +409,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const BOT_USERNAME = "soulaxbot";
-
-        // Profil Utilisateur
         let telegramUser = { username: "sct4962", first_name: "Client" };
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             telegramUser = tg.initDataUnsafe.user;
@@ -433,7 +417,6 @@
             document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
         }
 
-        // Produits
         const products = [
             { id: 1, title: "Perm x Zeclair 🌑⚡", category: "cat1", price: 45.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+1", description: "Description détaillée du produit 1." },
             { id: 2, title: "Dosi x Fruitloop 🍇🌈", category: "cat1", price: 50.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+2", description: "Description détaillée du produit 2." },
@@ -441,10 +424,8 @@
             { id: 4, title: "Jumbo Gusherz 🍇", category: "cat2", price: 40.00, image: "https://via.placeholder.com/300/111827/38bdf8?text=Produit+4", description: "Description détaillée du produit 4." }
         ];
 
-        // État du panier
         let cart = [];
 
-        // Rendu du catalogue
         function renderProducts(items) {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
@@ -467,13 +448,11 @@
             });
         }
 
-        // Filtre
         function filterProducts() {
             const cat = document.getElementById('category-filter').value;
             renderProducts(cat === 'all' ? products : products.filter(p => p.category === cat));
         }
 
-        // Vues
         function setActiveNav(id) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             if(id) document.getElementById(id).classList.add('active');
@@ -519,7 +498,6 @@
             tg.BackButton.onClick(showCatalog);
         }
 
-        // Gestion du panier
         function addToCart(productId) {
             const existing = cart.find(item => item.id === productId);
             if (existing) {
@@ -582,7 +560,6 @@
             document.getElementById('cart-total-price').textContent = `${total.toFixed(2)} €`;
         }
 
-        // --- ENVOI DE LA COMMANDE ---
         function submitOrder() {
             if (cart.length === 0) {
                 tg.showAlert("Votre panier est vide !");
@@ -591,19 +568,16 @@
 
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            let text = "🚨 *NOUVELLE COMMANDE*\n\n";
-            cart.forEach(item => {
-                text += `• ${item.title} (x${item.quantity}) - ${(item.price * item.quantity).toFixed(2)}€\n`;
-            });
-            text += `\n💰 *Total :* ${totalAmount.toFixed(2)} €`;
+            // Structure les données à envoyer au bot de manière transparente
+            const orderData = {
+                items: cart,
+                total: totalAmount.toFixed(2)
+            };
 
-            // Redirige vers le bot Telegram avec le message de commande pré-rempli
-            const url = `https://t.me/${BOT_USERNAME}?text=${encodeURIComponent(text)}`;
-            tg.openTelegramLink(url);
-            tg.close();
+            // Envoie les données en arrière-plan au bot Telegram et ferme la MiniApp
+            tg.sendData(JSON.stringify(orderData));
         }
 
-        // Initialisation
         renderProducts(products);
     </script>
 </body>
