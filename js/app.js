@@ -54,6 +54,8 @@ function showDetails(id) {
 
     document.getElementById('catalog-view').style.display = 'none';
     document.getElementById('cart-view').style.display = 'none';
+    document.getElementById('infos-view').style.display = 'none';
+    document.getElementById('contact-view').style.display = 'none';
     document.getElementById('details-view').style.display = 'block';
 
     tg.BackButton.show();
@@ -64,6 +66,8 @@ function showCart() {
     renderCart();
     document.getElementById('catalog-view').style.display = 'none';
     document.getElementById('details-view').style.display = 'none';
+    document.getElementById('infos-view').style.display = 'none';
+    document.getElementById('contact-view').style.display = 'none';
     document.getElementById('cart-view').style.display = 'block';
     setActiveNav('nav-cart');
 
@@ -71,5 +75,28 @@ function showCart() {
     tg.BackButton.onClick(showCatalog);
 }
 
-// Premier chargement
+function showInfos() {
+    document.getElementById('catalog-view').style.display = 'none';
+    document.getElementById('details-view').style.display = 'none';
+    document.getElementById('cart-view').style.display = 'none';
+    document.getElementById('contact-view').style.display = 'none';
+    document.getElementById('infos-view').style.display = 'block';
+    setActiveNav('nav-infos');
+
+    tg.BackButton.show();
+    tg.BackButton.onClick(showCatalog);
+}
+
+function showContact() {
+    document.getElementById('catalog-view').style.display = 'none';
+    document.getElementById('details-view').style.display = 'none';
+    document.getElementById('cart-view').style.display = 'none';
+    document.getElementById('infos-view').style.display = 'none';
+    document.getElementById('contact-view').style.display = 'block';
+    setActiveNav('nav-contact');
+
+    tg.BackButton.show();
+    tg.BackButton.onClick(showCatalog);
+}
+
 renderProducts(products);
